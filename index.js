@@ -51,6 +51,14 @@ async function run() {
           const result = await campCollection.insertOne(item);
           res.send(result);
         });
+
+        //to retrieve all camps
+        app.get('/available-camps', async (req, res) => {
+          const result = await campCollection.find().toArray();
+          res.send(result);
+        });
+
+        
         // -------------------------------------------------------------------------------
         // const userCollection = client.db("bistroDb").collection("users");
         // const menuCollection = client.db("bistroDb").collection("menu");
@@ -137,10 +145,7 @@ async function run() {
         // })
 
         // // menu related apis
-        // app.get('/menu', async (req, res) => {
-        //   const result = await menuCollection.find().toArray();
-        //   res.send(result);
-        // });
+        
 
         // app.get('/menu/:id', async (req, res) => {
         //   const id = req.params.id;
