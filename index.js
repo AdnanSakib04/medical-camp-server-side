@@ -32,6 +32,7 @@ async function run() {
 
         const userCollection = client.db("careSyncDB").collection("users");
         const campCollection = client.db("careSyncDB").collection("camps");
+        const healthcareProfessionalCollection = client.db("careSyncDB").collection("healthcareProfessional");
 
         //to insert new users into the collection
         app.post('/users', async (req, res) => {
@@ -44,21 +45,89 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result);
         });
+        //to insert new users into the healthcare collection
+        app.post('/healthcareProfessional', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email }
+            const existingUser = await healthcareProfessionalCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exists', insertedId: null })
+            }
+            const result = await healthcareProfessionalCollection.insertOne(user);
+            res.send(result);
+        });
+        //to get data from healthcare collection
+        app.get('/get-user-data', async (req, res) => {
+            
+                const userEmail = req.query.email; 
+
+                await client.connect();
+                const database = client.db('your_database_name');
+
+                const userData = await healthcareProfessionalCollection.findOne({ email: userEmail });
+
+                if (!userData) {
+                    res.status(404).json({ error: 'User not found' });
+                } else {
+                    res.json(userData);
+                }
+            
+        });
+
+        //put route for update healthcare profile
+    app.put('/update-healthcare-profile/:email', async (req, res) => {
+        const email = req.params.email;
+        const filter = { email: email };
+        const options = { upsert: true };
+        const updatedProfile = req.body;
+  
+        const blog = {
+          $set: {
+            name: updatedProfile.title,
+            phone: updatedProfile.phone,
+            specialty: updatedProfile.specialty,
+            certifications: updatedProfile.certifications,
+            email: updatedProfile.email,
+          }
+        }
+  
+        const result = await healthcareProfessionalCollection.updateOne(filter, blog, options);
+        res.send(result);
+      })
+  
 
         //to add a camp
-         app.post('/add-camp-endpoint', async (req, res) => {
-          const item = req.body;
-          const result = await campCollection.insertOne(item);
-          res.send(result);
+        app.post('/add-camp-endpoint', async (req, res) => {
+            const item = req.body;
+            const result = await campCollection.insertOne(item);
+            res.send(result);
         });
 
         //to retrieve all camps
         app.get('/available-camps', async (req, res) => {
-          const result = await campCollection.find().toArray();
-          res.send(result);
+            const result = await campCollection.find().toArray();
+            res.send(result);
         });
 
-        
+        // Endpoint to get user role based on email
+        app.get('/user-role', async (req, res) => {
+            try {
+                const { email } = req.query;
+
+                const user = await userCollection.findOne({ email });
+
+                if (!user) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+
+                res.json({ role: user.role });
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+                res.status(500).json({ error: 'Internal Server Error' });
+            }
+        });
+
+
         // -------------------------------------------------------------------------------
         // const userCollection = client.db("bistroDb").collection("users");
         // const menuCollection = client.db("bistroDb").collection("menu");
@@ -145,7 +214,7 @@ async function run() {
         // })
 
         // // menu related apis
-        
+
 
         // app.get('/menu/:id', async (req, res) => {
         //   const id = req.params.id;
@@ -154,7 +223,7 @@ async function run() {
         //   res.send(result);
         // })
 
-       
+
 
         // app.patch('/menu/:id', async (req, res) => {
         //   const item = req.body;
