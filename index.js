@@ -31,7 +31,9 @@ async function run() {
         // await client.connect();
 
         const userCollection = client.db("careSyncDB").collection("users");
+        const campCollection = client.db("careSyncDB").collection("camps");
 
+        //to insert new users into the collection
         app.post('/users', async (req, res) => {
             const user = req.body;
             const query = { email: user.email }
@@ -41,6 +43,13 @@ async function run() {
             }
             const result = await userCollection.insertOne(user);
             res.send(result);
+        });
+
+        //to add a camp
+         app.post('/add-camp-endpoint', async (req, res) => {
+          const item = req.body;
+          const result = await campCollection.insertOne(item);
+          res.send(result);
         });
         // -------------------------------------------------------------------------------
         // const userCollection = client.db("bistroDb").collection("users");
@@ -140,11 +149,7 @@ async function run() {
         //   res.send(result);
         // })
 
-        // app.post('/menu', verifyToken, verifyAdmin, async (req, res) => {
-        //   const item = req.body;
-        //   const result = await menuCollection.insertOne(item);
-        //   res.send(result);
-        // });
+       
 
         // app.patch('/menu/:id', async (req, res) => {
         //   const item = req.body;
