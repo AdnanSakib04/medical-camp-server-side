@@ -74,7 +74,7 @@ async function run() {
             
         });
 
-        //put route for update healthcare profile
+    //put route for update healthcare profile
     app.put('/update-healthcare-profile/:email', async (req, res) => {
         const email = req.params.email;
         const filter = { email: email };
@@ -83,11 +83,34 @@ async function run() {
   
         const blog = {
           $set: {
-            name: updatedProfile.title,
+            name: updatedProfile.name,
             phone: updatedProfile.phone,
             specialty: updatedProfile.specialty,
             certifications: updatedProfile.certifications,
             email: updatedProfile.email,
+            address: updatedProfile.address,
+          }
+        }
+  
+        const result = await healthcareProfessionalCollection.updateOne(filter, blog, options);
+        res.send(result);
+      })
+  
+    //put route for update participant profile
+    app.put('/update-participant-profile/:email', async (req, res) => {
+        const email = req.params.email;
+        const filter = { email: email };
+        const options = { upsert: true };
+        const updatedProfile = req.body;
+  
+        const blog = {
+          $set: {
+            name: updatedProfile.name,
+            phone: updatedProfile.phone,
+            preferences: updatedProfile.preferences,
+            interests: updatedProfile.interests,
+            email: updatedProfile.email,
+            address: updatedProfile.address,
           }
         }
   
@@ -96,13 +119,14 @@ async function run() {
       })
   
 
-        //to add a camp
+        //post route to add a camp
         app.post('/add-camp-endpoint', async (req, res) => {
             const item = req.body;
             const result = await campCollection.insertOne(item);
             res.send(result);
         });
 
+        
         //to retrieve all camps
         app.get('/available-camps', async (req, res) => {
             const result = await campCollection.find().toArray();
