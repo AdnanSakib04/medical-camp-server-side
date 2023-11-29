@@ -60,8 +60,20 @@ async function run() {
             res.send(result);
         });
 
+        //to insert new users into the participant collection
+        app.post('/participant', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email }
+            const existingUser = await participantCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exists', insertedId: null })
+            }
+            const result = await participantCollection.insertOne(user);
+            res.send(result);
+        });
+
         //to get data from healthcare collection
-        app.get('/get-user-data', async (req, res) => {
+        app.get('/get-healthcareProfessional-data', async (req, res) => {
             
                 const userEmail = req.query.email; 
 
@@ -77,7 +89,7 @@ async function run() {
                 }
             
         });
-        
+
         //to get data from participant collection
         app.get('/get-participant-data', async (req, res) => {
             
