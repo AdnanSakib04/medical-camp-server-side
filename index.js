@@ -222,6 +222,7 @@ async function run() {
             }
         });
 
+
         // Endpoint to get user role based on email
         app.get('/user-role', async (req, res) => {
             try {
@@ -239,6 +240,15 @@ async function run() {
                 res.status(500).json({ error: 'Internal Server Error' });
             }
         });
+
+        //delete route for camp
+        app.delete('/delete-camp/:campId', async (req, res) => {
+            const id = req.params.campId;
+            const query = { _id: new ObjectId(id) }
+            const result = await campCollection.deleteOne(query);
+            res.send(result);
+        })
+
 
 
         // -------------------------------------------------------------------------------
