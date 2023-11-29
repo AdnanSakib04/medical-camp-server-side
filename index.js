@@ -176,7 +176,27 @@ async function run() {
           }
         }
   
-        const result = await healthcareProfessionalCollection.updateOne(filter, blog, options);
+        const result = await participantCollection.updateOne(filter, blog, options);
+        res.send(result);
+      })
+    //put route for update organizer profile
+    app.put('/update-organizer-profile/:email', async (req, res) => {
+        const email = req.params.email;
+        const filter = { email: email };
+        const options = { upsert: true };
+        const updatedProfile = req.body;
+  
+        const blog = {
+          $set: {
+            name: updatedProfile.name,
+            phone: updatedProfile.phone,
+            preferences: updatedProfile.preferences,
+            email: updatedProfile.email,
+            address: updatedProfile.address,
+          }
+        }
+  
+        const result = await organizerCollection.updateOne(filter, blog, options);
         res.send(result);
       })
   
