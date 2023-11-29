@@ -35,6 +35,7 @@ async function run() {
         const healthcareProfessionalCollection = client.db("careSyncDB").collection("healthcareProfessional");
         const participantCollection = client.db("careSyncDB").collection("participants");
         const organizerCollection = client.db("careSyncDB").collection("organizers");
+        const registerCampCollection = client.db("careSyncDB").collection("registerCamp");
 
         //to insert new users into the collection
         app.post('/users', async (req, res) => {
@@ -203,6 +204,14 @@ async function run() {
         });
 
 
+        //post route to add a registration for camp
+        app.post('/register-camp', async (req, res) => {
+            const item = req.body;
+            const result = await registerCampCollection.insertOne(item);
+            res.send(result);
+        });
+
+
         //to retrieve all camps
         app.get('/available-camps', async (req, res) => {
             const result = await campCollection.find().toArray();
@@ -266,7 +275,7 @@ async function run() {
             const options = { upsert: true };
             const updatedCamp = req.body;
 
-            const blog = {
+            const camp = {
                 $set: {
                     name: updatedCamp.name,
                     audience: updatedCamp.audience,
@@ -280,7 +289,7 @@ async function run() {
                 }
             }
 
-            const result = await campCollection.updateOne(filter, blog, options);
+            const result = await campCollection.updateOne(filter, camp, options);
             res.send(result);
         })
 
