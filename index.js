@@ -255,7 +255,7 @@ async function run() {
         app.get('/available-camps/:campId', async (req, res) => {
             const id = req.params.campId;
             const query = { _id: new ObjectId(id) }
-            const result = await blogCollection.findOne(query);
+            const result = await campCollection.findOne(query);
             res.send(result);
         })
 
@@ -268,15 +268,19 @@ async function run() {
 
             const blog = {
                 $set: {
-                    title: updatedProduct.title,
-                    category: updatedProduct.category,
-                    photo: updatedProduct.photo,
-                    shortDescription: updatedProduct.shortDescription,
-                    longDescription: updatedProduct.longDescription,
+                    name: updatedCamp.name,
+                    audience: updatedCamp.audience,
+                     photo: updatedCamp.photo,
+                    description: updatedCamp.description,
+                    fees: updatedCamp.fees,
+                    location: updatedCamp.location,
+                    dateTime: updatedCamp.dateTime,
+                    specializedServices: updatedCamp.specializedServices,
+                    healthcareProfessionals: updatedCamp.healthcareProfessionals
                 }
             }
 
-            const result = await blogCollection.updateOne(filter, blog, options);
+            const result = await campCollection.updateOne(filter, blog, options);
             res.send(result);
         })
 
