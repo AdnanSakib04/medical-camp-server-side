@@ -218,7 +218,7 @@ async function run() {
             res.send(result);
         });
 
-        //get route for camps of specific organize
+        //get route for camps of specific organizer
         app.get('/available-camps/:email', async (req, res) => {
             try {
                 const email = req.params.email;
@@ -230,6 +230,27 @@ async function run() {
                 res.status(500).json({ error: 'Internal Server Error' });
             }
         });
+
+        //get route for registered camps of specific participant
+        app.get('/registered-camps/:email', async (req, res) => {
+            try {
+                const email = req.params.email;
+                const filter = { email: email };
+                const camps = await registerCampCollection.find(filter).toArray();
+                res.json(camps);
+            } catch (error) {
+                console.error('Error fetching camps:', error);
+                res.status(500).json({ error: 'Internal Server Error' });
+            }
+        });
+
+        //delete route for registration cancelation of specific participant
+        app.delete('/registered-camps/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await registerCampCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
         // Endpoint to get user role based on email
