@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-// const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const port = process.env.PORT || 5000;
 
@@ -36,6 +36,7 @@ async function run() {
         const participantCollection = client.db("careSyncDB").collection("participants");
         const organizerCollection = client.db("careSyncDB").collection("organizers");
         const registerCampCollection = client.db("careSyncDB").collection("registerCamp");
+        const upcomingCampCollection = client.db("careSyncDB").collection("upcomingCamp");
 
         //to insert new users into the collection
         app.post('/users', async (req, res) => {
@@ -244,6 +245,19 @@ async function run() {
             }
         });
 
+        //get route for managing registered camps of specific organizer
+        app.get('/manage-registered-camps/:email', async (req, res) => {
+            try {
+                const email = req.params.email;
+                const filter = { organizerEmail: email };
+                const camps = await registerCampCollection.find(filter).toArray();
+                res.json(camps);
+            } catch (error) {
+                console.error('Error fetching camps:', error);
+                res.status(500).json({ error: 'Internal Server Error' });
+            }
+        });
+
         //delete route for registration cancelation of specific participant
         app.delete('/registered-camps/:id', async (req, res) => {
             const id = req.params.id;
@@ -300,7 +314,7 @@ async function run() {
                 $set: {
                     name: updatedCamp.name,
                     audience: updatedCamp.audience,
-                     photo: updatedCamp.photo,
+                    photo: updatedCamp.photo,
                     description: updatedCamp.description,
                     fees: updatedCamp.fees,
                     location: updatedCamp.location,
@@ -314,14 +328,39 @@ async function run() {
             res.send(result);
         })
 
+        //post route to add a camp
+        app.post('/add-upcoming-camp', async (req, res) => {
+            const item = req.body;
+            const result = await upcomingCampCollection.insertOne(item);
+            res.send(result);
+        });
 
+
+        //to retrieve all camps
+        app.get('/upcoming-camps', async (req, res) => {
+            const result = await upcomingCampCollection.find().toArray();
+            res.send(result);
+        });
+
+           // payment intent
+           app.post('/create-payment-intent', async (req, res) => {
+            const { price } = req.body;
+            const amount = parseInt(price * 100);
+            console.log(amount, 'amount inside the intent')
+  
+            const paymentIntent = await stripe.paymentIntents.create({
+              amount: amount,
+              currency: 'usd',
+              payment_method_types: ['card']
+            });
+  
+            res.send({
+              clientSecret: paymentIntent.client_secret
+            })
+          });
 
         // -------------------------------------------------------------------------------
-        // const userCollection = client.db("bistroDb").collection("users");
-        // const menuCollection = client.db("bistroDb").collection("menu");
-        // const reviewCollection = client.db("bistroDb").collection("reviews");
-        // const cartCollection = client.db("bistroDb").collection("carts");
-        // const paymentCollection = client.db("bistroDb").collection("payments");
+
 
         // // jwt related api
         // app.post('/jwt', async (req, res) => {
@@ -464,22 +503,7 @@ async function run() {
         //   res.send(result);
         // });
 
-        // // payment intent
-        // app.post('/create-payment-intent', async (req, res) => {
-        //   const { price } = req.body;
-        //   const amount = parseInt(price * 100);
-        //   console.log(amount, 'amount inside the intent')
-
-        //   const paymentIntent = await stripe.paymentIntents.create({
-        //     amount: amount,
-        //     currency: 'usd',
-        //     payment_method_types: ['card']
-        //   });
-
-        //   res.send({
-        //     clientSecret: paymentIntent.client_secret
-        //   })
-        // });
+     
 
 
         // app.get('/payments/:email', verifyToken, async (req, res) => {
