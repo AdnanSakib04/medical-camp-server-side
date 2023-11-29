@@ -85,134 +85,141 @@ async function run() {
 
         //to get data from healthcare collection
         app.get('/get-healthcareProfessional-data', async (req, res) => {
-            
-                const userEmail = req.query.email; 
 
-                await client.connect();
-                const database = client.db('your_database_name');
+            const userEmail = req.query.email;
 
-                const userData = await healthcareProfessionalCollection.findOne({ email: userEmail });
 
-                if (!userData) {
-                    res.status(404).json({ error: 'User not found' });
-                } else {
-                    res.json(userData);
-                }
-            
+            const userData = await healthcareProfessionalCollection.findOne({ email: userEmail });
+
+            if (!userData) {
+                res.status(404).json({ error: 'User not found' });
+            } else {
+                res.json(userData);
+            }
+
         });
 
         //to get data from participant collection
         app.get('/get-participant-data', async (req, res) => {
-            
-                const userEmail = req.query.email; 
 
-                await client.connect();
-                const database = client.db('your_database_name');
+            const userEmail = req.query.email;
 
-                const userData = await participantCollection.findOne({ email: userEmail });
 
-                if (!userData) {
-                    res.status(404).json({ error: 'User not found' });
-                } else {
-                    res.json(userData);
-                }
-            
+            const userData = await participantCollection.findOne({ email: userEmail });
+
+            if (!userData) {
+                res.status(404).json({ error: 'User not found' });
+            } else {
+                res.json(userData);
+            }
+
         });
         //to get data from organizer collection
         app.get('/get-organizer-data', async (req, res) => {
-            
-                const userEmail = req.query.email; 
 
-                await client.connect();
-                const database = client.db('your_database_name');
+            const userEmail = req.query.email;
 
-                const userData = await organizerCollection.findOne({ email: userEmail });
 
-                if (!userData) {
-                    res.status(404).json({ error: 'User not found' });
-                } else {
-                    res.json(userData);
-                }
-            
+            const userData = await organizerCollection.findOne({ email: userEmail });
+
+            if (!userData) {
+                res.status(404).json({ error: 'User not found' });
+            } else {
+                res.json(userData);
+            }
+
         });
 
-    //put route for update healthcare profile
-    app.put('/update-healthcare-profile/:email', async (req, res) => {
-        const email = req.params.email;
-        const filter = { email: email };
-        const options = { upsert: true };
-        const updatedProfile = req.body;
-  
-        const blog = {
-          $set: {
-            name: updatedProfile.name,
-            phone: updatedProfile.phone,
-            specialty: updatedProfile.specialty,
-            certifications: updatedProfile.certifications,
-            email: updatedProfile.email,
-            address: updatedProfile.address,
-          }
-        }
-  
-        const result = await healthcareProfessionalCollection.updateOne(filter, blog, options);
-        res.send(result);
-      })
-  
-    //put route for update participant profile
-    app.put('/update-participant-profile/:email', async (req, res) => {
-        const email = req.params.email;
-        const filter = { email: email };
-        const options = { upsert: true };
-        const updatedProfile = req.body;
-  
-        const blog = {
-          $set: {
-            name: updatedProfile.name,
-            phone: updatedProfile.phone,
-            preferences: updatedProfile.preferences,
-            interests: updatedProfile.interests,
-            email: updatedProfile.email,
-            address: updatedProfile.address,
-          }
-        }
-  
-        const result = await participantCollection.updateOne(filter, blog, options);
-        res.send(result);
-      })
-    //put route for update organizer profile
-    app.put('/update-organizer-profile/:email', async (req, res) => {
-        const email = req.params.email;
-        const filter = { email: email };
-        const options = { upsert: true };
-        const updatedProfile = req.body;
-  
-        const blog = {
-          $set: {
-            name: updatedProfile.name,
-            phone: updatedProfile.phone,
-            preferences: updatedProfile.preferences,
-            email: updatedProfile.email,
-            address: updatedProfile.address,
-          }
-        }
-  
-        const result = await organizerCollection.updateOne(filter, blog, options);
-        res.send(result);
-      })
-  
+        //put route for update healthcare profile
+        app.put('/update-healthcare-profile/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updatedProfile = req.body;
+
+            const blog = {
+                $set: {
+                    name: updatedProfile.name,
+                    phone: updatedProfile.phone,
+                    specialty: updatedProfile.specialty,
+                    certifications: updatedProfile.certifications,
+                    email: updatedProfile.email,
+                    address: updatedProfile.address,
+                }
+            }
+
+            const result = await healthcareProfessionalCollection.updateOne(filter, blog, options);
+            res.send(result);
+        })
+
+        //put route for update participant profile
+        app.put('/update-participant-profile/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updatedProfile = req.body;
+
+            const blog = {
+                $set: {
+                    name: updatedProfile.name,
+                    phone: updatedProfile.phone,
+                    preferences: updatedProfile.preferences,
+                    interests: updatedProfile.interests,
+                    email: updatedProfile.email,
+                    address: updatedProfile.address,
+                }
+            }
+
+            const result = await participantCollection.updateOne(filter, blog, options);
+            res.send(result);
+        })
+        //put route for update organizer profile
+        app.put('/update-organizer-profile/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updatedProfile = req.body;
+
+            const blog = {
+                $set: {
+                    name: updatedProfile.name,
+                    phone: updatedProfile.phone,
+                    preferences: updatedProfile.preferences,
+                    email: updatedProfile.email,
+                    address: updatedProfile.address,
+                }
+            }
+
+            const result = await organizerCollection.updateOne(filter, blog, options);
+            res.send(result);
+        })
+
 
         //post route to add a camp
-        app.post('/add-camp-endpoint', async (req, res) => {
+        app.post('/add-a-camp', async (req, res) => {
             const item = req.body;
             const result = await campCollection.insertOne(item);
             res.send(result);
         });
 
-        
+
         //to retrieve all camps
         app.get('/available-camps', async (req, res) => {
             const result = await campCollection.find().toArray();
             res.send(result);
+        });
+
+        //get route for camps of specific organize
+        app.get('/available-camps/:email', async (req, res) => {
+            try {
+                const email = req.params.email;
+                const filter = { organizerEmail: email };
+                const camps = await campCollection.find(filter).toArray();
+                res.json(camps);
+            } catch (error) {
+                console.error('Error fetching camps:', error);
+                res.status(500).json({ error: 'Internal Server Error' });
+            }
         });
 
         // Endpoint to get user role based on email
