@@ -251,6 +251,37 @@ async function run() {
 
 
 
+        //get route for update camp
+        app.get('/available-camps/:campId', async (req, res) => {
+            const id = req.params.campId;
+            const query = { _id: new ObjectId(id) }
+            const result = await blogCollection.findOne(query);
+            res.send(result);
+        })
+
+        //put route for update camp
+        app.put('/update-camp/:campId', async (req, res) => {
+            const id = req.params.campId;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updatedCamp = req.body;
+
+            const blog = {
+                $set: {
+                    title: updatedProduct.title,
+                    category: updatedProduct.category,
+                    photo: updatedProduct.photo,
+                    shortDescription: updatedProduct.shortDescription,
+                    longDescription: updatedProduct.longDescription,
+                }
+            }
+
+            const result = await blogCollection.updateOne(filter, blog, options);
+            res.send(result);
+        })
+
+
+
         // -------------------------------------------------------------------------------
         // const userCollection = client.db("bistroDb").collection("users");
         // const menuCollection = client.db("bistroDb").collection("menu");
