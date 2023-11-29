@@ -118,6 +118,23 @@ async function run() {
                 }
             
         });
+        //to get data from organizer collection
+        app.get('/get-organizer-data', async (req, res) => {
+            
+                const userEmail = req.query.email; 
+
+                await client.connect();
+                const database = client.db('your_database_name');
+
+                const userData = await organizerCollection.findOne({ email: userEmail });
+
+                if (!userData) {
+                    res.status(404).json({ error: 'User not found' });
+                } else {
+                    res.json(userData);
+                }
+            
+        });
 
     //put route for update healthcare profile
     app.put('/update-healthcare-profile/:email', async (req, res) => {
