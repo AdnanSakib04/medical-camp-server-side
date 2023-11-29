@@ -71,6 +71,17 @@ async function run() {
             const result = await participantCollection.insertOne(user);
             res.send(result);
         });
+        //to insert new users into the participant collection
+        app.post('/organizer', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email }
+            const existingUser = await organizerCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exists', insertedId: null })
+            }
+            const result = await organizerCollection.insertOne(user);
+            res.send(result);
+        });
 
         //to get data from healthcare collection
         app.get('/get-healthcareProfessional-data', async (req, res) => {
