@@ -33,6 +33,8 @@ async function run() {
         const userCollection = client.db("careSyncDB").collection("users");
         const campCollection = client.db("careSyncDB").collection("camps");
         const healthcareProfessionalCollection = client.db("careSyncDB").collection("healthcareProfessional");
+        const participantCollection = client.db("careSyncDB").collection("participants");
+        const organizerCollection = client.db("careSyncDB").collection("organizers");
 
         //to insert new users into the collection
         app.post('/users', async (req, res) => {
@@ -45,6 +47,7 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result);
         });
+
         //to insert new users into the healthcare collection
         app.post('/healthcareProfessional', async (req, res) => {
             const user = req.body;
@@ -56,6 +59,7 @@ async function run() {
             const result = await healthcareProfessionalCollection.insertOne(user);
             res.send(result);
         });
+
         //to get data from healthcare collection
         app.get('/get-user-data', async (req, res) => {
             
@@ -65,6 +69,24 @@ async function run() {
                 const database = client.db('your_database_name');
 
                 const userData = await healthcareProfessionalCollection.findOne({ email: userEmail });
+
+                if (!userData) {
+                    res.status(404).json({ error: 'User not found' });
+                } else {
+                    res.json(userData);
+                }
+            
+        });
+        
+        //to get data from participant collection
+        app.get('/get-participant-data', async (req, res) => {
+            
+                const userEmail = req.query.email; 
+
+                await client.connect();
+                const database = client.db('your_database_name');
+
+                const userData = await participantCollection.findOne({ email: userEmail });
 
                 if (!userData) {
                     res.status(404).json({ error: 'User not found' });
