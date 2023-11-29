@@ -37,6 +37,7 @@ async function run() {
         const organizerCollection = client.db("careSyncDB").collection("organizers");
         const registerCampCollection = client.db("careSyncDB").collection("registerCamp");
         const upcomingCampCollection = client.db("careSyncDB").collection("upcomingCamp");
+        const paymentCollection = client.db("careSyncDB").collection("payments");
 
         //to insert new users into the collection
         app.post('/users', async (req, res) => {
@@ -359,89 +360,52 @@ async function run() {
             })
           });
 
+          //to retrieve all registered camps
+        app.get('/registered-camps', async (req, res) => {
+            const result = await registerCampCollection.find().toArray();
+            res.send(result);
+        });
+
+        //post route to add a camp
+        app.post('/payments', async (req, res) => {
+            const item = req.body;
+            const result = await paymentCollection.insertOne(item);
+            res.send(result);
+        });
+
+         //get route for payment history of participants
+        app.get('/payments/:email', async (req, res) => {
+            try {
+                const email = req.params.email;
+                const filter = { email: email };
+                const camps = await paymentCollection.find(filter).toArray();
+                res.json(camps);
+            } catch (error) {
+                console.error('Error fetching camps:', error);
+                res.status(500).json({ error: 'Internal Server Error' });
+            }
+        });
+
+        //patch route for updating status of participants registered camps
+        app.patch('/payments/:email', async (req, res) => {
+            const item = req.body;
+            const email = req.params.email;
+            const filter = { email: email }
+            const updatedDoc = {
+              $set: {
+                paymentStatus: item.paymentStatus,
+                
+              }
+            }
+            const result = await registerCampCollection.updateOne(filter, updatedDoc)
+            res.send(result);
+          })
+
+
         // -------------------------------------------------------------------------------
 
 
-        // // jwt related api
-        // app.post('/jwt', async (req, res) => {
-        //   const user = req.body;
-        //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-        //   res.send({ token });
-        // })
-
-        // // middlewares 
-        // const verifyToken = (req, res, next) => {
-        //   // console.log('inside verify token', req.headers.authorization);
-        //   if (!req.headers.authorization) {
-        //     return res.status(401).send({ message: 'unauthorized access' });
-        //   }
-        //   const token = req.headers.authorization.split(' ')[1];
-        //   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        //     if (err) {
-        //       return res.status(401).send({ message: 'unauthorized access' })
-        //     }
-        //     req.decoded = decoded;
-        //     next();
-        //   })
-        // }
-
-        // // use verify admin after verifyToken
-        // const verifyAdmin = async (req, res, next) => {
-        //   const email = req.decoded.email;
-        //   const query = { email: email };
-        //   const user = await userCollection.findOne(query);
-        //   const isAdmin = user?.role === 'admin';
-        //   if (!isAdmin) {
-        //     return res.status(403).send({ message: 'forbidden access' });
-        //   }
-        //   next();
-        // }
-
-        // // users related api
-        // app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
-        //   const result = await userCollection.find().toArray();
-        //   res.send(result);
-        // });
-
-        // app.get('/users/admin/:email', verifyToken, async (req, res) => {
-        //   const email = req.params.email;
-
-        //   if (email !== req.decoded.email) {
-        //     return res.status(403).send({ message: 'forbidden access' })
-        //   }
-
-        //   const query = { email: email };
-        //   const user = await userCollection.findOne(query);
-        //   let admin = false;
-        //   if (user) {
-        //     admin = user?.role === 'admin';
-        //   }
-        //   res.send({ admin });
-        // })
-
-
-
-        // app.patch('/users/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
-        //   const id = req.params.id;
-        //   const filter = { _id: new ObjectId(id) };
-        //   const updatedDoc = {
-        //     $set: {
-        //       role: 'admin'
-        //     }
-        //   }
-        //   const result = await userCollection.updateOne(filter, updatedDoc);
-        //   res.send(result);
-        // })
-
-        // app.delete('/users/:id', verifyToken, verifyAdmin, async (req, res) => {
-        //   const id = req.params.id;
-        //   const query = { _id: new ObjectId(id) }
-        //   const result = await userCollection.deleteOne(query);
-        //   res.send(result);
-        // })
-
-        // // menu related apis
-
+        
 
         // app.get('/menu/:id', async (req, res) => {
         //   const id = req.params.id;
@@ -452,19 +416,7 @@ async function run() {
 
 
 
-        // app.patch('/menu/:id', async (req, res) => {
-        //   const item = req.body;
-        //   const id = req.params.id;
-        //   const filter = { _id: new ObjectId(id) }
-        //   const updatedDoc = {
-        //     $set: {
-        //       name: item.name,
-        //       category: item.category,
-        //       price: item.price,
-        //       recipe: item.recipe,
-        //       image: item.image
-        //     }
-        //   }
+       
 
         //   const result = await menuCollection.updateOne(filter, updatedDoc)
         //   res.send(result);
