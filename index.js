@@ -343,24 +343,24 @@ async function run() {
             res.send(result);
         });
 
-           // payment intent
-           app.post('/create-payment-intent', async (req, res) => {
+        // payment intent
+        app.post('/create-payment-intent', async (req, res) => {
             const { price } = req.body;
             const amount = parseInt(price * 100);
             console.log(amount, 'amount inside the intent')
-  
-            const paymentIntent = await stripe.paymentIntents.create({
-              amount: amount,
-              currency: 'usd',
-              payment_method_types: ['card']
-            });
-  
-            res.send({
-              clientSecret: paymentIntent.client_secret
-            })
-          });
 
-          //to retrieve all registered camps
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+
+            res.send({
+                clientSecret: paymentIntent.client_secret
+            })
+        });
+
+        //to retrieve all registered camps
         app.get('/registered-camps', async (req, res) => {
             const result = await registerCampCollection.find().toArray();
             res.send(result);
@@ -373,7 +373,7 @@ async function run() {
             res.send(result);
         });
 
-         //get route for payment history of participants
+        //get route for payment history of participants
         app.get('/payments/:email', async (req, res) => {
             try {
                 const email = req.params.email;
@@ -391,25 +391,25 @@ async function run() {
             const item = req.body;
             console.log('Received Update Status:', item);
             const id = req.params.id;
-            const filter = { _id: new ObjectId(id)  };
+            const filter = { _id: new ObjectId(id) };
             const updatedDoc = {
-              $set: {
-                paymentStatus: item.paymentStatus,
-              }
+                $set: {
+                    paymentStatus: item.paymentStatus,
+                }
             };
-          
-            try {
-              const result = await registerCampCollection.updateOne(filter, updatedDoc);
-              console.log('Update Result:', result);
-              res.send(result);
-            } catch (error) {
-              console.error('Error updating payment status:', error);
-              res.status(500).send({ message: 'Error updating payment status' });
-            }
-          });
 
-       
-          
+            try {
+                const result = await registerCampCollection.updateOne(filter, updatedDoc);
+                console.log('Update Result:', result);
+                res.send(result);
+            } catch (error) {
+                console.error('Error updating payment status:', error);
+                res.status(500).send({ message: 'Error updating payment status' });
+            }
+        });
+
+
+
 
 
         //patch route for updating confirmation status of participants registered camps
@@ -418,196 +418,40 @@ async function run() {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
-              $set: {
-                confirmationStatus: item.confirmationStatus,
-                
-              }
+                $set: {
+                    confirmationStatus: item.confirmationStatus,
+
+                }
             }
             const result = await registerCampCollection.updateOne(filter, updatedDoc)
             res.send(result);
-          })
+        })
 
 
 
-          
+
         //patch route for updating confirmation status in payment history
         app.patch('/payment-history-status/:id', async (req, res) => {
             const item = req.body;
             const id = req.params.id;
             const filter = { campId: id }
             const updatedDoc = {
-              $set: {
-                confirmationStatus: item.confirmationStatus,
-                
-              }
+                $set: {
+                    confirmationStatus: item.confirmationStatus,
+
+                }
             }
             const result = await paymentCollection.updateOne(filter, updatedDoc)
             res.send(result);
-          })
+        })
 
+        //to retrieve all participants camps
+        app.get('/user-list', async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result);
+        });
 
         // -------------------------------------------------------------------------------
-
-
-        
-
-        // app.get('/menu/:id', async (req, res) => {
-        //   const id = req.params.id;
-        //   const query = { _id: new ObjectId(id) }
-        //   const result = await menuCollection.findOne(query);
-        //   res.send(result);
-        // })
-
-
-
-       
-
-        //   const result = await menuCollection.updateOne(filter, updatedDoc)
-        //   res.send(result);
-        // })
-
-        // app.delete('/menu/:id', verifyToken, verifyAdmin, async (req, res) => {
-        //   const id = req.params.id;
-        //   const query = { _id: new ObjectId(id) }
-        //   const result = await menuCollection.deleteOne(query);
-        //   res.send(result);
-        // })
-
-        // app.get('/reviews', async (req, res) => {
-        //   const result = await reviewCollection.find().toArray();
-        //   res.send(result);
-        // })
-
-        // // carts collection
-        // app.get('/carts', async (req, res) => {
-        //   const email = req.query.email;
-        //   const query = { email: email };
-        //   const result = await cartCollection.find(query).toArray();
-        //   res.send(result);
-        // });
-
-        // app.post('/carts', async (req, res) => {
-        //   const cartItem = req.body;
-        //   const result = await cartCollection.insertOne(cartItem);
-        //   res.send(result);
-        // });
-
-        // app.delete('/carts/:id', async (req, res) => {
-        //   const id = req.params.id;
-        //   const query = { _id: new ObjectId(id) }
-        //   const result = await cartCollection.deleteOne(query);
-        //   res.send(result);
-        // });
-
-     
-
-
-        // app.get('/payments/:email', verifyToken, async (req, res) => {
-        //   const query = { email: req.params.email }
-        //   if (req.params.email !== req.decoded.email) {
-        //     return res.status(403).send({ message: 'forbidden access' });
-        //   }
-        //   const result = await paymentCollection.find(query).toArray();
-        //   res.send(result);
-        // })
-
-        // app.post('/payments', async (req, res) => {
-        //   const payment = req.body;
-        //   const paymentResult = await paymentCollection.insertOne(payment);
-
-        //   //  carefully delete each item from the cart
-        //   console.log('payment info', payment);
-        //   const query = {
-        //     _id: {
-        //       $in: payment.cartIds.map(id => new ObjectId(id))
-        //     }
-        //   };
-
-        //   const deleteResult = await cartCollection.deleteMany(query);
-
-        //   res.send({ paymentResult, deleteResult });
-        // })
-
-        // // stats or analytics
-        // app.get('/admin-stats', verifyToken, verifyAdmin, async (req, res) => {
-        //   const users = await userCollection.estimatedDocumentCount();
-        //   const menuItems = await menuCollection.estimatedDocumentCount();
-        //   const orders = await paymentCollection.estimatedDocumentCount();
-
-        //   // this is not the best way
-        //   // const payments = await paymentCollection.find().toArray();
-        //   // const revenue = payments.reduce((total, payment) => total + payment.price, 0);
-
-        //   const result = await paymentCollection.aggregate([
-        //     {
-        //       $group: {
-        //         _id: null,
-        //         totalRevenue: {
-        //           $sum: '$price'
-        //         }
-        //       }
-        //     }
-        //   ]).toArray();
-
-        //   const revenue = result.length > 0 ? result[0].totalRevenue : 0;
-
-        //   res.send({
-        //     users,
-        //     menuItems,
-        //     orders,
-        //     revenue
-        //   })
-        // })
-
-
-        // // order status
-        // /**
-        //  * ----------------------------
-        //  *    NON-Efficient Way
-        //  * ------------------------------
-        //  * 1. load all the payments
-        //  * 2. for every menuItemIds (which is an array), go find the item from menu collection
-        //  * 3. for every item in the menu collection that you found from a payment entry (document)
-        // */
-
-        // // using aggregate pipeline
-        // app.get('/order-stats', verifyToken, verifyAdmin, async(req, res) =>{
-        //   const result = await paymentCollection.aggregate([
-        //     {
-        //       $unwind: '$menuItemIds'
-        //     },
-        //     {
-        //       $lookup: {
-        //         from: 'menu',
-        //         localField: 'menuItemIds',
-        //         foreignField: '_id',
-        //         as: 'menuItems'
-        //       }
-        //     },
-        //     {
-        //       $unwind: '$menuItems'
-        //     },
-        //     {
-        //       $group: {
-        //         _id: '$menuItems.category',
-        //         quantity:{ $sum: 1 },
-        //         revenue: { $sum: '$menuItems.price'} 
-        //       }
-        //     },
-        //     {
-        //       $project: {
-        //         _id: 0,
-        //         category: '$_id',
-        //         quantity: '$quantity',
-        //         revenue: '$revenue'
-        //       }
-        //     }
-        //   ]).toArray();
-
-        //   res.send(result);
-
-        // })
-
         // -------------------------------------------------------------------------------
 
         // Send a ping to confirm a successful connection
