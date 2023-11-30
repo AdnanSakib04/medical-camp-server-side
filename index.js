@@ -387,24 +387,36 @@ async function run() {
         });
 
         //patch route for updating status of participants registered camps
-        app.patch('/payments/:email', async (req, res) => {
+        app.patch('/registered-camp/:id', async (req, res) => {
             const item = req.body;
-            const email = req.params.email;
-            const filter = { email: email }
+            console.log('Received Update Status:', item);
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id)  };
             const updatedDoc = {
               $set: {
                 paymentStatus: item.paymentStatus,
-                
               }
+            };
+          
+            try {
+              const result = await registerCampCollection.updateOne(filter, updatedDoc);
+              console.log('Update Result:', result);
+              res.send(result);
+            } catch (error) {
+              console.error('Error updating payment status:', error);
+              res.status(500).send({ message: 'Error updating payment status' });
             }
-            const result = await registerCampCollection.updateOne(filter, updatedDoc)
-            res.send(result);
-          })
+          });
+
+       
+          
+
+
         //patch route for updating confirmation status of participants registered camps
-        app.patch('/payments/:id', async (req, res) => {
+        app.patch('/registered-camp-organizer/:id', async (req, res) => {
             const item = req.body;
             const id = req.params.id;
-            const filter = { id: id }
+            const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
               $set: {
                 confirmationStatus: item.confirmationStatus,
@@ -412,6 +424,24 @@ async function run() {
               }
             }
             const result = await registerCampCollection.updateOne(filter, updatedDoc)
+            res.send(result);
+          })
+
+
+
+          
+        //patch route for updating confirmation status in payment history
+        app.patch('/payment-history-status/:id', async (req, res) => {
+            const item = req.body;
+            const id = req.params.id;
+            const filter = { campId: id }
+            const updatedDoc = {
+              $set: {
+                confirmationStatus: item.confirmationStatus,
+                
+              }
+            }
+            const result = await paymentCollection.updateOne(filter, updatedDoc)
             res.send(result);
           })
 
