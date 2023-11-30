@@ -400,6 +400,20 @@ async function run() {
             const result = await registerCampCollection.updateOne(filter, updatedDoc)
             res.send(result);
           })
+        //patch route for updating confirmation status of participants registered camps
+        app.patch('/payments/:id', async (req, res) => {
+            const item = req.body;
+            const id = req.params.id;
+            const filter = { id: id }
+            const updatedDoc = {
+              $set: {
+                confirmationStatus: item.confirmationStatus,
+                
+              }
+            }
+            const result = await registerCampCollection.updateOne(filter, updatedDoc)
+            res.send(result);
+          })
 
 
         // -------------------------------------------------------------------------------
