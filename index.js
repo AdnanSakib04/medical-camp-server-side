@@ -38,6 +38,7 @@ async function run() {
         const registerCampCollection = client.db("careSyncDB").collection("registerCamp");
         const upcomingCampCollection = client.db("careSyncDB").collection("upcomingCamp");
         const paymentCollection = client.db("careSyncDB").collection("payments");
+        const reviewCollection = client.db("careSyncDB").collection("review");
 
         //to insert new users into the collection
         app.post('/users', async (req, res) => {
@@ -448,6 +449,18 @@ async function run() {
         //to retrieve all participants camps
         app.get('/user-list', async (req, res) => {
             const result = await userCollection.find().toArray();
+            res.send(result);
+        });
+
+         //post route to add a review
+         app.post('/feedback-and-ratings', async (req, res) => {
+            const item = req.body;
+            const result = await reviewCollection.insertOne(item);
+            res.send(result);
+        });
+         //to retrieve all feedbacks and ratings 
+         app.get('/feedback-and-ratings', async (req, res) => {
+            const result = await reviewCollection.find().toArray();
             res.send(result);
         });
 
